@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karnataka Environment Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js CDN (specific version for plugin compatibility) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Chart.js Treemap Plugin CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0/dist/chartjs-chart-treemap.min.js"></script>
+
+    <style>
+        /* Custom font */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Ensure charts are responsive */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+    <!-- Load Inter font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <header class="mb-8">
+        <div class="flex flex-col md:flex-row justify-between md:items-center">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Karnataka Environment Dashboard</h1>
+                <p class="text-lg text-gray-600">A consolidated view of rainfall and agricultural patterns across the state.</p>
+            </div>
+            <!-- NEW: Advanced Visualization Button -->
+            <button id="toggle-view-btn" class="mt-4 md:mt-0 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+                Show Advanced Visualization
+            </button>
+        </div>
+    </header>
+
+    <!-- Dashboard Grid -->
+    <main id="main-dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Plot 1: 2022 District Rainfall (Normal vs. Actual) -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container" id="plot1-container">
+                <canvas id="plot1"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 1</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This chart compares normal vs. actual rainfall in 2022. It's clear that 2022 was an exceptionally wet year. All sampled districts received rainfall significantly *above* average, with some (like Mandya and Tumakuru) seeing more than double their typical rainfall.
+                </p>
+            </div>
+        </div>
+
+        <!-- Plot 2: Annual Rainfall Comparison (2020-2022) -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot2"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 2</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This is the **Year-over-Year Comparison** you requested. This chart tracks the actual annual rainfall for key districts from 2020 to 2022. It clearly shows a consistent upward trend in rainfall for these districts, culminating in the major precipitation event of 2022.
+                </p>
+            </div>
+        </div>
+
+        <!-- Plot 3: Crop Production by Type -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot3"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 3</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This pie chart shows a sample breakdown of agricultural production by crop type. 'Cereals' form the largest segment, followed by 'Spices', 'Pulses', and 'Oilseeds'. This highlights the dominance of food grain production in the state's agricultural landscape.
+                </p>
+            </div>
+        </div>
+
+        <!-- Plot 4: Top Crops by Area -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot4"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 4</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This chart illustrates the top crops by the total area they occupy. 'Rice' and 'Sugarcane' lead, indicating their importance as staple and cash crops. 'Maize' also shows significant land use, followed by 'Cotton' and 'Wheat', painting a picture of Karnataka's diverse crop portfolio.
+                </p>
+            </div>
+        </div>
+
+        <!-- Plot 5: Seasonal Crop Production -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot5"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 5</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This stacked chart visualizes production by season. The 'Kharif' (monsoon) season shows high production for 'Rice' and 'Cotton'. The 'Rabi' (winter) season is critical for 'Wheat', while 'Sugarcane' is often harvested year-round. This demonstrates the strong link between crop cycles and seasons.
+                </p>
+            </div>
+        </div>
+
+        <!-- Plot 6: Rainfall vs. Crop Yield -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot6"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 6</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This scatter plot explores the relationship between rainfall and yield. The sample data shows two distinct clusters, suggesting different crop types. For some (like Cashews, top-right), higher yields appear correlated with higher rainfall, while for others, the relationship is less clear, indicating other factors are at play.
+                </p>
+            </div>
+        </div>
+
+        <!-- Plot 7: Temperature vs. Crop Yield -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot7"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 7</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This plot maps yield against temperature. The data points are clustered within a narrow temperature band (26.8°C - 27.5°C), suggesting these crops are grown in similar climates. Within this band, there's a wide variance in yield, showing that temperature alone isn't the primary driver for yield.
+                </p>
+            </div>
+        </div>
+
+        <!-- Plot 8: Average Yield by Soil Type -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot8"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 8</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This chart shows a striking difference in average crop yield based on soil type. 'Alluvial' soil, known for its fertility, shows vastly superior average yields compared to 'Black', 'Red', and 'Laterite' soils in this sample. This highlights soil quality as a critical factor in agricultural productivity.
+                </p>
+            </div>
+        </div>
+
+        <!-- Plot 9: 2020 Seasonal Rainfall Breakdown -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot9"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 9</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This grouped chart breaks down 2020's rainfall into its three main seasons. The 'South-West Monsoon' (SWM) is clearly the dominant source of rain for all districts. The 'Pre-Monsoon' and 'North-East Monsoon' (NEM) contribute smaller, but still significant, amounts, vital for different cropping cycles.
+                </p>
+            </div>
+        </div>
+
+        <!-- Plot 10: 2023 Top Stations -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot10"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 10</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This chart shows the total rainfall for the wettest stations in the sample for 2023. This highlights specific micro-climates or areas (like 'YEVOOR' in Yadgir) that received exceptionally high rainfall, which might be missed in a district-level summary.
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- NEW: Advanced Plots Section (Hidden by default) -->
+    <main id="advanced-plots-section" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Plot 11: Treemap of Crop Production -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot11"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 11 (Treemap)</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This treemap visualizes hierarchical crop production. The large rectangles represent crop *types* (like Cereals, Spices), and their size shows their total production. Inside each, smaller rectangles show individual *crops* (like Rice, Wheat), sized by their own production. This clearly shows the dominance of 'Cereals' and that 'Rice' is the largest single crop in this sample.
+                </p>
+            </div>
+        </div>
+
+        <!-- Plot 12: Bubble Chart (Yield vs. Rainfall & Temp) -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot12"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 12 (Bubble)</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This bubble chart shows a 3-dimensional relationship. The X-axis is Rainfall, the Y-axis is Temperature, and the **size of the bubble** represents Crop Yield. We can see that the largest yields (biggest bubbles) occur in a high-rainfall, moderate-temperature zone, suggesting ideal growing conditions for high-yield crops.
+                </p>
+            </div>
+        </div>
+
+        <!-- Plot 13: Radar Chart (Crop Metrics) -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot13"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 13 (Radar)</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This radar chart compares different crops across key metrics. 'Coconut' (blue) shows a high price but moderate yield and humidity needs. 'Cashew' (red) shows a very high yield and price, thriving in high humidity. This type of chart is excellent for quickly comparing the profiles of different agricultural products.
+                </p>
+            </div>
+        </div>
+
+        <!-- REPLACED PLOT 14: Stacked Bar Chart (Yearly Production) -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot14"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 14 (Stacked Bar)</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This chart shows the total production of key crops stacked by year. It allows us to see both the change in total production (the height of the bar) and the change in the mix of crops over time. For example, we can see how the production of Rice, Wheat, and Maize has fluctuated from 2018 to 2022 in this sample.
+                </p>
+            </div>
+        </div>
+
+        <!-- REPLACED PLOT 15: Multi-Line Chart (Yield Trends) -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="chart-container">
+                <canvas id="plot15"></canvas>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800">Interpretation: Plot 15 (Multi-Line)</h3>
+                <p class="text-sm text-gray-600 mt-2">
+                    This line chart tracks the yield (kg/ha) for major crops over several years. This is crucial for identifying long-term trends in agricultural efficiency. We can easily compare if the yield for 'Rice' (blue) is growing faster or slower than 'Wheat' (red) or 'Maize' (green) over the sample period.
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- CSV Parsing Function ---
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            if (lines.length < 2) return [];
+            const headers = lines[0].split(',').map(h => h.trim());
+            const data = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(v => v.trim());
+                if (values.length === headers.length) {
+                    const rowObject = {};
+                    for (let j = 0; j < headers.length; j++) {
+                        rowObject[headers[j]] = values[j];
+                    }
+                    data.push(rowObject);
+                }
+            }
+            return data;
+        }
+
+        /**
+         * Main function to load all data and initialize charts.
+         */
+        async function initializeDashboard() {
+            
+            // --- Plot 1 (Sample Data) ---
+            try {
+                const plot1Data = {
+                    labels: ['Mandya', 'Tumakuru', 'Bengaluru Rural', 'Ramanagara', 'Davanagere', 'Bengaluru Urban', 'Kolar', 'Gadag', 'Mysuru', 'Chitradurga'],
+                    datasets: [
+                        {
+                            label: 'Normal Rainfall (mm)',
+                            data: [699, 669, 798, 840, 659, 846, 735, 624, 837, 540],
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1, borderRadius: 4
+                        },
+                        {
+                            label: 'Actual Rainfall (mm)',
+                            data: [1484, 1358, 1498, 1512, 1162, 1456, 1250, 995, 1318, 839],
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1, borderRadius: 4
+                        }
+                    ]
+                };
+                const ctx1 = document.getElementById('plot1').getContext('2d');
+                new Chart(ctx1, {
+                    type: 'bar',
+                    data: plot1Data,
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: 'Plot 1: District Rainfall (Normal vs. Actual) - 2022', font: { size: 16, weight: 'bold' } },
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Rainfall (mm)' } },
+                            x: { title: { display: true, text: 'District' } }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Failed to render Plot 1:', error);
+                document.getElementById('plot1-container').innerHTML = `<p class="text-red-500 text-center">Failed to render Plot 1.</p>`;
+            }
+
+
+            // --- UPDATED: Plot 2 (Sample Data) ---
+            const plot2Data = {
+                labels: ['Bengaluru Urban', 'Kolar', 'Mysuru', 'Mandya', 'Belagavi'],
+                datasets: [
+                    {
+                        label: '2020 Actual (mm)',
+                        data: [1082, 983, 822, 820, 983],
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        fill: false, tension: 0.1
+                    },
+                    {
+                        label: '2021 Actual (mm)',
+                        data: [1128, 1316, 955, 1011, 983],
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        fill: false, tension: 0.1
+                    },
+                    {
+                        label: '2022 Actual (mm)',
+                        data: [1456, 1250, 1318, 1484, 1194],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        fill: false, tension: 0.1
+                    }
+                ]
+            };
+            const ctx2 = document.getElementById('plot2').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line', data: plot2Data,
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { 
+                        title: { display: true, text: 'Plot 2: Annual Rainfall Comparison (2020-2022)', font: { size: 16, weight: 'bold' } }, 
+                        legend: { position: 'bottom' } 
+                    }, 
+                    scales: { 
+                        y: { beginAtZero: false, title: { display: true, text: 'Actual Rainfall (mm)' } }, 
+                        x: { title: { display: true, text: 'District' } } 
+                    } 
+                }
+            });
+
+            // --- Plot 3 (Sample Data) ---
+            const plot3Data = {
+                labels: ['Cereals', 'Spices', 'Pulses', 'Oilseeds', 'Other'],
+                datasets: [{
+                    label: 'Production Share', data: [45, 20, 15, 10, 10],
+                    backgroundColor: ['rgba(255, 99, 132, 0.7)', 'rgba(54, 162, 235, 0.7)', 'rgba(255, 206, 86, 0.7)', 'rgba(75, 192, 192, 0.7)', 'rgba(153, 102, 255, 0.7)'],
+                    hoverOffset: 4
+                }]
+            };
+            const ctx3 = document.getElementById('plot3').getContext('2d');
+            new Chart(ctx3, {
+                type: 'pie', data: plot3Data,
+                options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Plot 3: Crop Production by Type (Sample)', font: { size: 16, weight: 'bold' } }, legend: { position: 'bottom' } } }
+            });
+
+            // --- Plot 4 (Sample Data) ---
+            const plot4Data = {
+                labels: ['Rice', 'Sugarcane', 'Maize', 'Cotton', 'Wheat', 'Arecanut', 'Groundnut', 'Jowar', 'Ragi', 'Tur'],
+                datasets: [{
+                    label: 'Area (Sample 1000 ha)', data: [1500, 1200, 1100, 900, 800, 750, 700, 600, 550, 400],
+                    backgroundColor: 'rgba(255, 159, 64, 0.6)', borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1, borderRadius: 4
+                }]
+            };
+            const ctx4 = document.getElementById('plot4').getContext('2d');
+            new Chart(ctx4, {
+                type: 'bar', data: plot4Data,
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Plot 4: Top Crops by Area (Sample)', font: { size: 16, weight: 'bold' } }, legend: { display: false } }, scales: { x: { title: { display: true, text: 'Area (Sample 1000 ha)' } }, y: { title: { display: true, text: 'Crop' } } } }
+            });
+
+            // --- Plot 5 (Sample Data) ---
+            const plot5Data = {
+                labels: ['Kharif', 'Rabi', 'Whole Year'],
+                datasets: [
+                    { label: 'Rice', data: [1200, 300, 0], backgroundColor: 'rgba(54, 162, 235, 0.7)', },
+                    { label: 'Wheat', data: [0, 700, 0], backgroundColor: 'rgba(255, 206, 86, 0.7)', },
+                    { label: 'Sugarcane', data: [0, 0, 1000], backgroundColor: 'rgba(75, 192, 192, 0.7)', },
+                    { label: 'Cotton', data: [800, 0, 0], backgroundColor: 'rgba(153, 102, 255, 0.7)', }
+                ]
+            };
+            const ctx5 = document.getElementById('plot5').getContext('2d');
+            new Chart(ctx5, {
+                type: 'bar', data: plot5Data,
+                options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Plot 5: Seasonal Crop Production (Sample)', font: { size: 16, weight: 'bold' } }, legend: { position: 'bottom' } }, scales: { x: { stacked: true, title: { display: true, text: 'Season' } }, y: { stacked: true, title: { display: true, text: 'Production (Sample Tons)' } } } }
+            });
+
+            // --- Plot 6 (Sample Data) ---
+            const plot6Data = {
+                datasets: [{
+                    label: 'Crop Yield',
+                    data: [ {x: 2903.1, y: 2570}, {x: 2996.6, y: 1402}, {x: 3522.8, y: 1132}, {x: 2746.2, y: 1493}, {x: 2903.1, y: 27170}, {x: 2996.6, y: 23456}, {x: 3522.8, y: 2134}, {x: 2746.2, y: 64409}, {x: 3100, y: 45000} ],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                }]
+            };
+            const ctx6 = document.getElementById('plot6').getContext('2d');
+            new Chart(ctx6, {
+                type: 'scatter', data: plot6Data,
+                options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Plot 6: Rainfall vs. Crop Yield (Sample)', font: { size: 16, weight: 'bold' } }, legend: { position: 'bottom' } }, scales: { x: { title: { display: true, text: 'Rainfall (mm)' } }, y: { title: { display: true, text: 'Yield (kg/ha)' } } } }
+            });
+
+            // --- Plot 7 (Sample Data) ---
+            const plot7Data = {
+                datasets: [{
+                    label: 'Crop Yield',
+                    data: [ {x: 27, y: 2570}, {x: 27.2, y: 1132}, {x: 26.8, y: 1493}, {x: 27.5, y: 2134}, {x: 27, y: 27170}, {x: 27.2, y: 107809}, {x: 26.8, y: 64409}, {x: 27.1, y: 50000} ],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                }]
+            };
+            const ctx7 = document.getElementById('plot7').getContext('2d');
+            new Chart(ctx7, {
+                type: 'scatter', data: plot7Data,
+                options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Plot 7: Temperature vs. Crop Yield (Sample)', font: { size: 16, weight: 'bold' } }, legend: { position: 'bottom' } }, scales: { x: { title: { display: true, text: 'Temperature (°C)' } }, y: { title: { display: true, text: 'Yield (kg/ha)' } } } }
+            });
+
+            // --- Plot 8 (Sample Data) ---
+            const plot8Data = {
+                labels: ['Alluvial', 'Black', 'Red', 'Laterite'],
+                datasets: [{
+                    label: 'Average Yield (Sample kg/ha)', data: [46191, 11000, 5500, 1500],
+                    backgroundColor: [ 'rgba(255, 206, 86, 0.6)', 'rgba(50, 50, 50, 0.6)', 'rgba(255, 99, 132, 0.6)', 'rgba(255, 159, 64, 0.6)' ],
+                    borderColor: [ 'rgba(255, 206, 86, 1)', 'rgba(50, 50, 50, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 159, 64, 1)' ],
+                    borderWidth: 1, borderRadius: 4
+                }]
+            };
+            const ctx8 = document.getElementById('plot8').getContext('2d');
+            new Chart(ctx8, {
+                type: 'bar', data: plot8Data,
+                options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Plot 8: Average Yield by Soil Type (Sample)', font: { size: 16, weight: 'bold' } }, legend: { display: false } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Average Yield (kg/ha)' } }, x: { title: { display: true, text: 'Soil Type' } } } }
+            });
+
+            // --- Plot 9 (Sample Data) ---
+            const plot9Data = {
+                labels: ['Bengaluru Urban', 'Kolar', 'Mysuru', 'Mandya'],
+                datasets: [
+                    { label: 'Pre-Monsoon Actual (mm)', data: [215, 127, 210, 229], backgroundColor: 'rgba(255, 206, 86, 0.7)', borderRadius: 4 },
+                    { label: 'SWM Actual (mm)', data: [579, 601, 443, 372], backgroundColor: 'rgba(54, 162, 235, 0.7)', borderRadius: 4 },
+                    { label: 'NEM Actual (mm)', data: [289, 254, 170, 219], backgroundColor: 'rgba(75, 192, 192, 0.7)', borderRadius: 4 }
+                ]
+            };
+            const ctx9 = document.getElementById('plot9').getContext('2d');
+            new Chart(ctx9, {
+                type: 'bar', data: plot9Data,
+                options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Plot 9: 2020 Seasonal Rainfall Breakdown', font: { size: 16, weight: 'bold' } }, legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Rainfall (mm)' } }, x: { title: { display: true, text: 'District' } } } }
+            });
+
+            // --- Plot 10 (Sample Data) ---
+            const plot10Data = {
+                labels: [
+                    'YEVOOR (GP)', 'BANDALLI (GP)', 'FHAKEERABOODIHAL (GP)', 'ALLIPUR (GP)', 'YAKTAPUR (GP)',
+                    'GULEDAGUDDA', 'HEBBALLI (GP)', 'KAINAKATTI (GP)', 'WAJJAL (GP)', 'HANSANURA (GP)'
+                ],
+                datasets: [{
+                    label: 'Total Rainfall (mm) in 2023',
+                    data: [622, 572.5, 554, 547.5, 465.5, 461, 456, 446.5, 432, 421],
+                    backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            };
+            const ctx10 = document.getElementById('plot10').getContext('2d');
+            new Chart(ctx10, {
+                type: 'bar',
+                data: plot10Data,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Plot 10: Top 10 Wettest Stations 2023 (Sample)', font: { size: 16, weight: 'bold' } },
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Total Rainfall (mm)' } },
+                        y: { title: { display: true, text: 'Station (GP)' } }
+                    }
+                }
+            });
+
+            // --- NEW: Plot 11 (Treemap) ---
+            const ctx11 = document.getElementById('plot11').getContext('2d');
+            new Chart(ctx11, {
+                type: 'treemap',
+                data: {
+                    datasets: [{
+                        label: 'Crop Production (Sample Tons)',
+                        // Sample data from ead...csv
+                        tree: [
+                            { crop: 'Rice', type: 'Cereals', production: 5000 },
+                            { crop: 'Wheat', type: 'Cereals', production: 3000 },
+                            { crop: 'Maize', type: 'Cereals', production: 2500 },
+                            { crop: 'Arecanut', type: 'Spices', production: 1500 },
+                            { crop: 'Black pepper', type: 'Spices', production: 800 },
+                            { crop: 'Tur', type: 'Pulses', production: 1200 },
+                            { crop: 'Gram', type: 'Pulses', production: 700 },
+                            { crop: 'Groundnut', type: 'Oilseeds', production: 1000 },
+                            { crop: 'Sugarcane', type: 'Other', production: 4000 },
+                            { crop: 'Cotton', type: 'Other', production: 1800 },
+                        ],
+                        key: 'production', // Value to size the rectangles
+                        groups: ['type', 'crop'], // Group by type, then by crop
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.5)',
+                        backgroundColor: (ctx) => {
+                            if (ctx.type !== 'data') return 'transparent';
+                            const item = ctx.raw._data;
+                            if (item.type === 'Cereals') return 'rgba(255, 99, 132, 0.7)';
+                            if (item.type === 'Spices') return 'rgba(54, 162, 235, 0.7)';
+                            if (item.type === 'Pulses') return 'rgba(255, 206, 86, 0.7)';
+                            if (item.type === 'Oilseeds') return 'rgba(75, 192, 192, 0.7)';
+                            return 'rgba(153, 102, 255, 0.7)';
+                        },
+                        labels: {
+                            display: true,
+                            color: 'white',
+                            font: { size: 12, weight: 'bold' },
+                            formatter: (ctx) => {
+                                if (ctx.raw) {
+                                    return [ctx.raw._data.crop, ctx.raw.v.toLocaleString() + ' T'];
+                                }
+                                return '';
+                            }
+                        }
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Plot 11: Crop Production by Type (Treemap)', font: { size: 16, weight: 'bold' } },
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // --- NEW: Plot 12 (Bubble Chart) ---
+            const ctx12 = document.getElementById('plot12').getContext('2d');
+            new Chart(ctx12, {
+                type: 'bubble',
+                data: {
+                    datasets: [
+                        // Sample data from data_season.csv
+                        { label: 'Coconut', data: [{ x: 2903.1, y: 27, r: 2570 / 1000 }], backgroundColor: 'rgba(54, 162, 235, 0.6)' }, // r = yield / 1000
+                        { label: 'Coconut', data: [{ x: 2996.6, y: 27, r: 1402 / 1000 }], backgroundColor: 'rgba(54, 162, 235, 0.6)' },
+                        { label: 'Coconut', data: [{ x: 3522.8, y: 27.2, r: 1132 / 1000 }], backgroundColor: 'rgba(54, 162, 235, 0.6)' },
+                        { label: 'Cashew', data: [{ x: 2746.2, y: 26.8, r: 1493 / 1000 }], backgroundColor: 'rgba(255, 99, 132, 0.6)' },
+                        { label: 'Cashew', data: [{ x: 2903.1, y: 27, r: 27170 / 1000 }], backgroundColor: 'rgba(255, 99, 132, 0.6)' },
+                        { label: 'Cashew', data: [{ x: 2996.6, y: 27, r: 23456 / 1000 }], backgroundColor: 'rgba(255, 99, 132, 0.6)' },
+                        { label: 'Cashew', data: [{ x: 2746.2, y: 26.8, r: 64409 / 1000 }], backgroundColor: 'rgba(255, 99, 132, 0.6)' },
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Plot 12: Yield (size) vs. Rainfall (x) & Temp (y)', font: { size: 16, weight: 'bold' } },
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Rainfall (mm)' } },
+                        y: { title: { display: true, text: 'Temperature (°C)' } }
+                    }
+                }
+            });
+
+            // --- NEW: Plot 13 (Radar Chart) ---
+            const ctx13 = document.getElementById('plot13').getContext('2d');
+            new Chart(ctx13, {
+                type: 'radar',
+                data: {
+                    labels: ['Yield (Normalized)', 'Price (Normalized)', 'Humidity', 'Rainfall (Normalized)'],
+                    datasets: [
+                        // Sample data from data_season.csv
+                        {
+                            label: 'Coconut',
+                            data: [0.2, 0.8, 57, 0.5], // Normalized yield/price/rain, actual humidity
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+                        },
+                        {
+                            label: 'Cashew',
+                            data: [0.8, 0.9, 53, 0.7],
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            pointBackgroundColor: 'rgba(255, 99, 132, 1)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Plot 13: Crop Profile Comparison (Sample)', font: { size: 16, weight: 'bold' } },
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 0,
+                            pointLabels: { font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+
+            // --- REPLACED: Plot 14 (Stacked Bar) ---
+            const ctx14 = document.getElementById('plot14').getContext('2d');
+            new Chart(ctx14, {
+                type: 'bar',
+                data: {
+                    labels: ['2018', '2019', '2020', '2021', '2022'],
+                    datasets: [
+                        {
+                            label: 'Rice',
+                            data: [4500, 4600, 4700, 4800, 5000],
+                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        },
+                        {
+                            label: 'Wheat',
+                            data: [2800, 2900, 3000, 3100, 3000],
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        },
+                        {
+                            label: 'Maize',
+                            data: [2200, 2300, 2400, 2500, 2500],
+                            backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Plot 14: Yearly Crop Production (Stacked)', font: { size: 16, weight: 'bold' } },
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        x: { 
+                            stacked: true, 
+                            title: { display: true, text: 'Year' } 
+                        },
+                        y: { 
+                            stacked: true, 
+                            title: { display: true, text: 'Production (Sample Tons)' } 
+                        }
+                    }
+                }
+            });
+
+            // --- REPLACED: Plot 15 (Multi-Line) ---
+            const ctx15 = document.getElementById('plot15').getContext('2d');
+            new Chart(ctx15, {
+                type: 'line',
+                data: {
+                    labels: ['2018', '2019', '2020', '2021', '2022'],
+                    datasets: [
+                        {
+                            label: 'Rice Yield (kg/ha)',
+                            data: [2700, 2750, 2800, 2850, 2900],
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            fill: false,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Wheat Yield (kg/ha)',
+                            data: [1500, 1520, 1550, 1530, 1560],
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            fill: false,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Maize Yield (kg/ha)',
+                            data: [3100, 3150, 3200, 3250, 3300],
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            fill: false,
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Plot 15: Crop Yield Trends (kg/ha)', font: { size: 16, weight: 'bold' } },
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        x: { 
+                            title: { display: true, text: 'Year' } 
+                        },
+                        y: { 
+                            title: { display: true, text: 'Yield (kg/ha)' } 
+                        }
+                    }
+                }
+            });
+
+        }
+
+        // --- NEW: Toggle View Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDashboard(); // Initialize all charts
+
+            const toggleBtn = document.getElementById('toggle-view-btn');
+            const mainGrid = document.getElementById('main-dashboard-grid');
+            const advancedGrid = document.getElementById('advanced-plots-section');
+
+            toggleBtn.addEventListener('click', () => {
+                const isMainVisible = !mainGrid.classList.contains('hidden');
+                if (isMainVisible) {
+                    mainGrid.classList.add('hidden');
+                    advancedGrid.classList.remove('hidden');
+                    toggleBtn.textContent = 'Show Main Dashboard';
+                } else {
+                    mainGrid.classList.remove('hidden');
+                    advancedGrid.classList.add('hidden');
+                    toggleBtn.textContent = 'Show Advanced Visualization';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
+
