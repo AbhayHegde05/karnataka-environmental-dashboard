@@ -337,7 +337,7 @@ except Exception as e:
 
 # --- 6. Launch the Dashboard (This is the final step) ---
 DASHBOARD_FILE = "dashboard.html"
-dashboard_path = os.path.join(SCRIPT_DIR, DASHBOARD_FILE)
+dashboard_path = os.path.join(DATA_PATH, DASHBOARD_FILE)
 
 if not os.path.exists(dashboard_path):
     print(f"\n--- FATAL ERROR ---")
