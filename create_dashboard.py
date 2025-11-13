@@ -1,10 +1,15 @@
 import pandas as pd
-import numpy as np  # Added for more processing options
+import numpy as np                   # Numerical processing
 import glob
 import os
-import webbrowser  # <-- This is the library that opens your HTML file
-import pathlib     # <-- This helps find the file reliably
-import time        # <-- Added to simulate long-running tasks
+import webbrowser                    # Opens the HTML dashboard
+import pathlib                       # Helps reliably locate files
+import time
+
+# Visualization libraries
+import matplotlib.pyplot as plt      # For plots (line, bar, scatter)
+import seaborn as sns                # For heatmaps & statistical visuals
+import plotly.express as px          # Optional: For interactive visuals
 
 print("--- Starting Advanced Data Pre-processing Engine ---")
 print(f"Timestamp: {pd.Timestamp.now()}")
